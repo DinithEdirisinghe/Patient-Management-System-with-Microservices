@@ -19,7 +19,7 @@ public class PatientRequestDTO {
     @NotBlank(message = "Date of Birth is mandatory")
     private String dateOfBirth;
 
-    @NotBlank(message = "Registered Date is mandatory")
+    @NotBlank(groups = CreatePatientValidationGroup.class, message = "Registered Date is mandatory")
     private String registeredDate;
 
     public String getName() {
