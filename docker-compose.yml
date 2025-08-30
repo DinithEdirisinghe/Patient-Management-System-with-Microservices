@@ -1,0 +1,51 @@
+services:
+  # --- PostgreSQL Database Service ---
+  patient-service-db:
+    image: postgres:latest
+    container_name: patient-service-db
+    restart: unless-stopped
+    ports:
+      - "5000:5432" # Host:5000 (for local tools like pgAdmin), Container:5432
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: password # IMPORTANT: CHANGE THIS!
+    volumes:
+      - patient-service-db-data:/var/lib/postgresql/data # Named volume for persistence
+    networks:
+      - internal_db_network # Connect to the custom internal network
+
+  # --- Spring Boot Application Service ---
+  patient-service:
+    build:
+      context: ./patient-service # Path to the directory containing the Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: patient-service:latest # The image tag you want to use for your app
+    container_name: patient-service
+    restart: unless-stopped
+    ports:
+      - "4000:4000" # Maps host port 4000 to container port 4000 (EXPOSEd in Dockerfile)
+    environment:
+      # Database connection properties
+      # IMPORTANT: Use the service name 'patient-service-db' as the hostname for inter-container communication
+      SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Other Spring Boot properties (from the tutorial's Environment Variables)
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always # This might be a custom or specific property, keep it as is from tutorial
+    networks:
+      - internal_db_network # Connect to the same internal network as the database
+    depends_on:
+      - patient-service-db # Ensure the database service starts before the application
+
+# Define your custom networks
+networks:
+  internal_db_network:
+    driver: bridge
+    # Removed internal: true to allow host access
+
+# Define your named volumes
+volumes:
+  patient-service-db-data:
+    driver: local
