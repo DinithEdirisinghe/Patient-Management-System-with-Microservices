@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # --- PostgreSQL Database Service ---
   patient-service-db:
@@ -15,7 +17,7 @@ services:
     networks:
       - internal_db_network # Connect to the custom internal network
 
-  # --- Spring Boot Application Service ---
+  # --- Patient Service Application ---
   patient-service:
     build:
       context: ./patient-service # Path to the directory containing the Dockerfile
@@ -26,7 +28,7 @@ services:
     ports:
       - "4000:4000" # Maps host port 4000 to container port 4000 (EXPOSEd in Dockerfile)
     environment:
-      # Database connection properties
+      # Database connection properties 
       # IMPORTANT: Use the service name 'patient-service-db' as the hostname for inter-container communication
       SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
       SPRING_DATASOURCE_USERNAME: admin_user
@@ -34,16 +36,44 @@ services:
       # Other Spring Boot properties (from the tutorial's Environment Variables)
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always # This might be a custom or specific property, keep it as is from tutorial
+      BILLING_SERVICE_ADDRESS: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
     networks:
       - internal_db_network # Connect to the same internal network as the database
     depends_on:
       - patient-service-db # Ensure the database service starts before the application
 
+  # --- Billing Service Application ---
+  billing-service:
+    build:
+      context: ./billing-service # Path to the directory containing billing-service's Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: billing-service:latest # The image tag you want to use for your billing app
+    container_name: billing-service
+    restart: unless-stopped
+    ports:
+      - "4001:4001" # Main application port mapping
+      - "9001:9001" # Secondary port mapping from the tutorial screenshot
+    environment:
+      # Database connection properties (assuming it connects to the same DB)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Other Spring Boot properties, adjust as needed for billing-service
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Add other specific environment variables for billing-service here if the tutorial specifies them
+    networks:
+      - internal_db_network # Connect to the same internal network as the database
+    depends_on:
+      - patient-service-db # Ensure the database service starts before this application
+      # If billing-service also needs patient-service to be up (e.g., calls its API), add it here:
+      # - patient-service
+
 # Define your custom networks
 networks:
   internal_db_network:
     driver: bridge
-    # Removed internal: true to allow host access
+    # internal: true # This was removed in your provided YML, so containers on this network will have external access
 
 # Define your named volumes
 volumes:
