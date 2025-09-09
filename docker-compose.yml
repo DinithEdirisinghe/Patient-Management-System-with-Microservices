@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- PostgreSQL Database Service ---
   patient-service-db:
@@ -69,6 +67,31 @@ services:
       - patient-service-db # Ensure the database service starts before this application
       # If billing-service also needs patient-service to be up (e.g., calls its API), add it here:
       # - patient-service
+
+  # --- Analytics Service Application ---
+  analytics-service:
+    build:
+      context: ./analytics-service # Path to the directory containing analytics-service's Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: analytics-service:latest # The image tag you want to use for your analytics app
+    container_name: analytics-service
+    restart: unless-stopped
+    ports:
+      - "4002:4002" # Main application port mapping
+    environment:
+      # Database connection properties (assuming it connects to the same DB)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Other Spring Boot properties
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: analytics-service
+    networks:
+      - internal_db_network # Connect to the same internal network
+    depends_on:
+      - patient-service-db # Ensure the database service starts before this application
+      - kafka # Ensure Kafka is running before analytics-service starts
 
   # --- Kafka Message Broker ---
   kafka:
