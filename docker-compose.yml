@@ -23,8 +23,8 @@ services:
     image: patient-service:latest # The image tag you want to use for your app
     container_name: patient-service
     restart: unless-stopped
-    ports:
-      - "4000:4000" # Maps host port 4000 to container port 4000 (EXPOSEd in Dockerfile)
+    # ports: 
+    #   - "4000:4000" # Maps host port 4000 to container port 4000 (EXPOSEd in Dockerfile)
     environment:
       # Database connection properties 
       # IMPORTANT: Use the service name 'patient-service-db' as the hostname for inter-container communication
@@ -92,6 +92,25 @@ services:
     depends_on:
       - patient-service-db # Ensure the database service starts before this application
       - kafka # Ensure Kafka is running before analytics-service starts
+
+  # --- API Gateway Service ---
+  api-gateway:
+    build:
+      context: ./api-gateway # Path to the directory containing api-gateway's Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: api-gateway:latest # The image tag you want to use for your api-gateway app
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "4004:4004" # Main application port mapping
+    environment:
+      # Spring Cloud Gateway properties
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - internal_db_network # Connect to the same internal network
+    depends_on:
+      - patient-service # Ensure patient-service is running before api-gateway starts
+      - billing-service # Ensure billing-service is running before api-gateway starts
 
   # --- Kafka Message Broker ---
   kafka:
