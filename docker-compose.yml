@@ -140,7 +140,7 @@ services:
     container_name: auth-service-db
     restart: unless-stopped
     ports:
-      - "5001:5432" # Host:5000 (for local tools like pgAdmin), Container:5432
+      - "5001:5432" # Host:5001 (for local tools like pgAdmin), Container:5432
     environment:
       POSTGRES_DB: db
       POSTGRES_USER: admin_user
@@ -149,6 +149,29 @@ services:
       - auth-service-db-data:/var/lib/postgresql/data # Named volume for persistence
     networks:
       - internal_db_network # Connect to the custom internal network
+
+  # --- Auth Service Application ---
+  auth-service:
+    build:
+      context: ./auth-service # Path to the directory containing auth-service's Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: auth-service:latest # The image tag you want to use for your auth app
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "4005:4005" # Main application port mapping
+    environment:
+      # Database connection properties 
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Other Spring Boot properties
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+    networks:
+      - internal_db_network # Connect to the same internal network as the database
+    depends_on:
+      - auth-service-db # Ensure the database service starts before the application
 
 # Define your custom networks
 networks:
