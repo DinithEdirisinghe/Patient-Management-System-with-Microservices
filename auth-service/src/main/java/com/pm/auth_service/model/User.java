@@ -1,4 +1,4 @@
-package main.java.com.pm.auth_service.model;
+package com.pm.auth_service.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
