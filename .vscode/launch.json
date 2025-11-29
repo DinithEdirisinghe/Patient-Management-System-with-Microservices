@@ -9,6 +9,13 @@
       "projectName": "patient-service",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "docker",
+      "name": "Docker: auth-service",
+      "request": "launch",
+      "preLaunchTask": "docker-run: auth-service",
+      "platform": "java"
     }
   ]
 }

@@ -150,6 +150,29 @@ services:
     networks:
       - internal_db_network # Connect to the custom internal network
 
+  # --- Auth Service Application ---
+  auth-service:
+    build:
+      context: ./auth-service # Path to the directory containing the Dockerfile
+      dockerfile: Dockerfile     # Name of the Dockerfile within that context
+    image: auth-service:latest # The image tag you want to use for your app
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "4005:4005" # Maps host port 4005 to container port 4005
+    environment:
+      # Database connection properties
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Other Spring Boot properties
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+    networks:
+      - internal_db_network # Connect to the same internal network as the database
+    depends_on:
+      - auth-service-db # Ensure the database service starts before the application
+
 # Define your custom networks
 networks:
   internal_db_network:
