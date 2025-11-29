@@ -1,10 +1,9 @@
-# Use OpenJDK 21 runtime as the base image
-FROM openjdk:21-jdk-slim
+# Stage 1: Build the application
+FROM eclipse-temurin:21-jdk AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Maven wrapper and pom.xml first (for better layer caching)
+# Copy the Maven wrapper and pom.xml first
 COPY mvnw mvnw.cmd pom.xml ./
 COPY .mvn .mvn
 
@@ -15,10 +14,16 @@ RUN chmod +x mvnw
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -DskipTests -B
 
-# Expose the port that the application will run on
+# Stage 2: Runtime
+FROM eclipse-temurin:21-jre AS runner
+
+WORKDIR /app
+
+# Copy the built JAR from builder stage
+COPY --from=builder /app/target/api-gateway-0.0.1-SNAPSHOT.jar ./app.jar
+
 EXPOSE 4004
 
-# Set the startup command to execute the jar
-CMD ["java", "-jar", "target/api-gateway-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
