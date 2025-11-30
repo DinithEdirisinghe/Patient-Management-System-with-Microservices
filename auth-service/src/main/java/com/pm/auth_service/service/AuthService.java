@@ -28,23 +28,23 @@ public class AuthService {
     public Optional<String> authenticate(LoginRequestDTO loginRequestDTO) {
         logger.info("Authentication attempt for email: {}", loginRequestDTO.getEmail());
         Optional<User> userOpt = userService.findByEmail(loginRequestDTO.getEmail());
-        
+
         if (userOpt.isEmpty()) {
             logger.warn("User not found: {}", loginRequestDTO.getEmail());
             return Optional.empty();
         }
-        
+
         User user = userOpt.get();
         logger.info("User found: {}, checking password", user.getEmail());
         boolean passwordMatches = passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword());
         logger.info("Password matches: {}", passwordMatches);
-        
+
         if (passwordMatches) {
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
             logger.info("Token generated for user: {}", user.getEmail());
             return Optional.of(token);
         }
-        
+
         return Optional.empty();
     }
 
