@@ -168,6 +168,7 @@ services:
       # Other Spring Boot properties
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
+      JWT_SECRET: "ZGluaXRoMTIzNDU2Nzg5IUAjJCUxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMQ==" # Base64 encoded
     networks:
       - internal_db_network # Connect to the same internal network as the database
     depends_on:
