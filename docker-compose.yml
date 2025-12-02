@@ -158,8 +158,8 @@ services:
     image: auth-service:latest # The image tag you want to use for your app
     container_name: auth-service
     restart: unless-stopped
-    ports:
-      - "4005:4005" # Maps host port 4005 to container port 4005
+    # ports:
+    #   - "4005:4005" # Maps host port 4005 to container port 4005
     environment:
       # Database connection properties
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-service-db:5432/db
