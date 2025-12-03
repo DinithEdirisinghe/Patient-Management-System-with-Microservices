@@ -106,6 +106,7 @@ services:
     environment:
       # Spring Cloud Gateway properties
       SPRING_PROFILES_ACTIVE: docker
+      AUTH_SERVICE_URL: http://auth-service:4005
     networks:
       - internal_db_network # Connect to the same internal network
     depends_on:

@@ -1,6 +1,10 @@
 server:
   port: 4004 # Gateway listens on port 4004
 
+auth:
+  service:
+    url: http://localhost:4005
+
 spring:
   cloud:
     gateway:
@@ -19,6 +23,7 @@ spring:
             - Path=/api/patients/**
           filters:
             - StripPrefix=1
+            - JwtValidation
 
         # Route for /api/docs/patients to patient-service /v3/api-docs
         - id: api-docs-patient-route
