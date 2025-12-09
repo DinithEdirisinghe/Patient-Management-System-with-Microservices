@@ -26,4 +26,17 @@
       <version>1.12.780</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>main.java.com.pm.stack.LocalStack</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>  
