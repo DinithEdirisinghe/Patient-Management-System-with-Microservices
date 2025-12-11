@@ -10,4 +10,4 @@ This module contains infrastructure-related components for the Patient Managemen
 
 ## Purpose
 
-Shared infrastructure components, utilities, and configurations used across microservices.
+Shared infrastructure components, utilities, and configurations used across microservices..
